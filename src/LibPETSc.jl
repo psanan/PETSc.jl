@@ -44,7 +44,8 @@ export PetscLibType,
     DM_BOUNDARY_TWIST,
     DMDAStencilType,
     DMDA_STENCIL_STAR,
-    DMDA_STENCIL_BOX
+    DMDA_STENCIL_BOX,
+    MatStencil
 
 include("LibPETSc_const.jl")
 include("LibPETSc_startup.jl")

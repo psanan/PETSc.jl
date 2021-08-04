@@ -514,3 +514,47 @@ function getpetsctype(mat::AbstractMat{PetscLib}) where {PetscLib}
     LibPETSc.MatGetType(PetscLib, mat, name_r)
     return unsafe_string(name_r[])
 end
+
+"""
+    MatStencil(PetscInt; i, j = 1, k = 1, c = 1)
+    MatStencil(; i::PetscInt, j = 1, k = 1, c = 1)
+
+Create a compatible `MatStencil` using base `1` indexing. The keyword `i` must
+be specified.
+
+# External Links
+$(_doc_external("Mat/MatStencil"))
+"""
+function LibPETSc.MatStencil(::Type{PetscInt}; i, j = 1, k = 1, c = 1) where PetscInt
+    # convert to zero-based indexing
+    return MatStencil{PetscInt}(k - 1, j - 1, i - 1, c - 1)
+end
+function LibPETSc.MatStencil(; i::PetscInt, j = 1, k = 1, c = 1) where PetscInt
+    # convert to zero-based indexing
+    return MatStencil{PetscInt}(k - 1, j - 1, i - 1, c - 1)
+end
+
+# Since julia uses 1-based indexing we need to convert on access
+function Base.getproperty(obj::MatStencil{PetscInt}, sym::Symbol) where PetscInt
+  if sym in (:i, :j, :k, :c)
+    return getfield(obj, sym) + PetscInt(1)
+  else # fallback to getfield
+      return getfield(obj, sym)
+  end
+end
+
+# Since julia uses 1-based indexing we need to convert on show
+function Base.show(io::IO, m::MatStencil{PetscInt}) where {PetscInt}
+  print(io, typeof(m))
+  print(io, "(i = ", m.i,)
+  print(io, ", j = ", m.j,)
+  print(io, ", k = ", m.k,)
+  print(io, ", c = ", m.c, ") [converted to base 1]")
+end
+
+function Base.show(io::IO, ::MIME"text/plain", m::MatStencil{PetscInt}) where PetscInt
+  print(io, "(i = ", m.i,)
+  print(io, ", j = ", m.j,)
+  print(io, ", k = ", m.k,)
+  print(io, ", c = ", m.c, ") [converted to base 1]")
+end

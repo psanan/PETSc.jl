@@ -65,6 +65,22 @@ function getdimension(dm::AbstractDM{PetscLib}) where {PetscLib}
     return r_dim[]
 end
 
+"""
+    MatAIJ(dm::AbstractDM)
+
+Generates a matrix from the `dm` object.
+
+# External Links
+$(_doc_external("DM/DMCreateMatrix"))
+"""
+function MatAIJ(dm::AbstractDM{PetscLib}) where PetscLib
+    mat = MatAIJ{PetscLib, PetscLib.PetscScalar}(C_NULL)
+
+    LibPETSc.DMCreateMatrix(PetscLib, dm, mat)
+
+    return mat
+end
+
 #=
 #
 # OLD WRAPPERS

@@ -153,7 +153,6 @@ mutable struct _n_PetscSubcomm
     subsize::Ptr{PetscMPIInt}
     type::PetscSubcommType
     subcommprefix::Ptr{Cchar}
-    _n_PetscSubcomm() = new()
 end
 
 const PetscSubcomm = Ptr{_n_PetscSubcomm}
@@ -1398,7 +1397,6 @@ mutable struct PetscStack
     petscroutine::NTuple{64, PetscBool}
     currentsize::Cint
     hotdepth::Cint
-    PetscStack() = new()
 end
 
 @for_petsc function PetscStackCopy(::$UnionPetscLib, arg1, arg2)
@@ -3587,7 +3585,6 @@ const PetscIntStack = Ptr{_n_PetscIntStack}
 mutable struct PetscClassRegInfo
     name::Ptr{Cchar}
     classid::PetscClassId
-    PetscClassRegInfo() = new()
 end
 
 mutable struct PetscClassPerfInfo
@@ -3596,7 +3593,6 @@ mutable struct PetscClassPerfInfo
     destructions::Cint
     mem::PetscLogDouble
     descMem::PetscLogDouble
-    PetscClassPerfInfo() = new()
 end
 
 struct _n_PetscClassRegLog
@@ -3619,7 +3615,6 @@ mutable struct PetscEventRegInfo
     name::Ptr{Cchar}
     classid::PetscClassId
     collective::PetscBool
-    PetscEventRegInfo() = new()
 end
 
 mutable struct PetscEventPerfInfo
@@ -3644,7 +3639,6 @@ mutable struct PetscEventPerfInfo
     mallocIncrease::PetscLogDouble
     mallocSpace::PetscLogDouble
     mallocIncreaseEvent::PetscLogDouble
-    PetscEventPerfInfo() = new()
 end
 
 struct _n_PetscEventRegLog
@@ -3681,7 +3675,6 @@ mutable struct _n_PetscStageLog
     stageInfo::Ptr{PetscStageInfo}
     eventLog::PetscEventRegLog
     classLog::PetscClassRegLog
-    _n_PetscStageLog() = new()
 end
 
 const PetscStageLog = Ptr{_n_PetscStageLog}
@@ -7915,7 +7908,6 @@ mutable struct PetscViewerAndFormat
     format::PetscViewerFormat
     lg::PetscDrawLG
     data::Ptr{Cvoid}
-    PetscViewerAndFormat() = new()
 end
 
 @for_petsc function PetscViewerAndFormatCreate(
@@ -20349,6 +20341,13 @@ end
     )
 end
 
+mutable struct MatStencil{PetscInt}
+    k::PetscInt
+    j::PetscInt
+    i::PetscInt
+    c::PetscInt
+end
+
 @for_petsc function MatSetStencil(
     ::$UnionPetscLib,
     arg1,
@@ -21491,7 +21490,6 @@ mutable struct MatInfo
     fill_ratio_given::PetscLogDouble
     fill_ratio_needed::PetscLogDouble
     factor_mallocs::PetscLogDouble
-    MatInfo() = new()
 end
 
 @enum MatInfoType::UInt32 begin
@@ -40445,7 +40443,6 @@ mutable struct JacActionCtx
     u::Vec
     J::Mat
     user::Ptr{Cvoid}
-    JacActionCtx() = new()
 end
 
 @for_petsc function DMPlexSetMaxProjectionHeight(::$UnionPetscLib, arg1, arg2)
@@ -63316,7 +63313,6 @@ mutable struct TSMonitorDMDARayCtx
     scatter::VecScatter
     viewer::PetscViewer
     lgctx::TSMonitorLGCtx
-    TSMonitorDMDARayCtx() = new()
 end
 
 @for_petsc function TSMonitorDMDARayDestroy(::$UnionPetscLib, arg1)

@@ -6,13 +6,13 @@ MPI.Initialized() || MPI.Init()
     comm = MPI.COMM_WORLD
     mpirank = MPI.Comm_rank(comm)
     mpisize = MPI.Comm_size(comm)
-    for petsclib in (PETSc.petsclibs[1],)
+    for petsclib in PETSc.petsclibs
         PETSc.initialize(petsclib)
         PetscScalar = petsclib.PetscScalar
         PetscInt = petsclib.PetscInt
 
         # Loop over all boundary types and try to use them
-        for boundary_type in (instances(PETSc.DMBoundaryType)[1],)
+        for boundary_type in instances(PETSc.DMBoundaryType)
             @testset "$boundary_type" begin
                 dof_per_node = 4
                 stencil_width = 5
@@ -351,15 +351,16 @@ end
         PETSc.finalize(petsclib)
     end
 end
+=#
 
-@testset "creatematrix" begin
+@testset "DM MatAIJ" begin
     comm = MPI.COMM_WORLD
     mpirank = MPI.Comm_rank(comm)
     mpisize = MPI.Comm_size(comm)
     for petsclib in PETSc.petsclibs
         PETSc.initialize(petsclib)
-        PetscScalar = PETSc.scalartype(petsclib)
-        PetscInt = PETSc.inttype(petsclib)
+        PetscScalar = petsclib.PetscScalar
+        PetscInt = petsclib.PetscInt
         boundary_type = PETSc.DM_BOUNDARY_NONE
         dof_per_node = 1
         stencil_width = 1
@@ -367,19 +368,19 @@ end
         points_per_proc = [PetscInt(10) for i in 1:mpisize]
         global_size = sum(points_per_proc)
         # Set the points
-        da = PETSc.DMDACreate1d(
+        da = PETSc.DMDA(
             petsclib,
             comm,
-            boundary_type,
-            global_size,
+            (boundary_type,),
+            (global_size,),
             dof_per_node,
-            stencil_width,
-            points_per_proc,
+            stencil_width;
+            points_per_proc = (points_per_proc,),
         )
-        mat = PETSc.creatematrix(da)
+        mat = PETSc.MatAIJ(da)
 
         # Build the 1-D Laplacian FD matrix
-        Sten = PETSc.MatStencil{PetscInt}
+        Sten(;kw...) = PETSc.MatStencil(PetscInt; kw...)
         col = Vector{Sten}(undef, 2)
         row = Vector{Sten}(undef, 2)
         val = Vector{PetscScalar}(undef, 4)
@@ -394,8 +395,8 @@ end
             PETSc.MatSetValuesStencil!(mat, row, col, val, PETSc.ADD_VALUES)
         end
 
-        PETSc.assemblybegin(mat)
-        PETSc.assemblyend(mat)
+        #=
+        PETSc.assemble(mat)
 
         for i in corners.lower[1]:corners.upper[1]
             if i == 1
@@ -406,10 +407,14 @@ end
                 @test mat[i, (i - 1):(i + 1)] == [1, -2, 1]
             end
         end
+        =#
+        PETSc.destroy(mat)
+        PETSc.destroy(da)
         PETSc.finalize(petsclib)
     end
 end
 
+#=
 @testset "DM Vectors and Coordinates" begin
     comm = MPI.COMM_WORLD
     mpirank = MPI.Comm_rank(comm)
